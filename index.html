@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stick Buddy — drum pad practice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --shell:#22315E; --shell-lit:#2E4074; --shell-deep:#141F42; --ink:#0C1330; --cream:#FFF3E4;
+  --left-deep:#B4661A; --right-deep:#0A6FB5;
+  --star:#FFD23F; --go:#00D18F; --go-deep:#00916A; --stop:#FF4D6D; --stop-deep:#B31237;
+  --display:"Fredoka","Trebuchet MS",system-ui,sans-serif;
+  --util:"Space Grotesk",system-ui,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--display);
+  background:
+    radial-gradient(circle at 20% 0%, #35478A 0%, transparent 55%),
+    radial-gradient(circle at 85% 100%, #3B2A6B 0%, transparent 50%),
+    var(--shell-deep);
+  min-height:100vh;color:var(--cream);padding:14px 10px 40px;-webkit-tap-highlight-color:transparent;
+}
+.device{
+  max-width:880px;margin:0 auto;background:var(--shell);
+  border:5px solid var(--ink);border-radius:34px;
+  box-shadow:0 10px 0 var(--ink), 0 26px 50px rgba(0,0,0,.45);overflow:hidden;
+}
+[hidden]{display:none !important}
+
+/* ---------- header ---------- */
+.badge{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:12px 20px;background:linear-gradient(180deg,var(--shell-lit),var(--shell));
+  border-bottom:5px solid var(--ink);
+}
+.badge h1{margin:0;font-size:clamp(19px,4.2vw,26px);font-weight:700;display:flex;align-items:center;gap:10px}
+.badge h1 .dot{width:16px;height:16px;border-radius:50%;background:conic-gradient(#FF3B3B,#FF9F1C,#FFD23F,#B8E04E,#3FE0C8,#29ADFF,#B06BFF,#FF6BC1,#FF3B3B);box-shadow:0 0 0 4px rgba(255,255,255,.14)}
+.badge p{margin:0;font-family:var(--util);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A9BCEF;text-align:right}
+
+/* ---------- cheer bubble ---------- */
+.stage{padding:16px 14px 20px;position:relative}
+.cheer{
+  position:relative;margin:0 auto 20px;max-width:520px;
+  background:var(--cream);color:var(--ink);border:4px solid var(--ink);border-radius:22px;
+  padding:11px 20px;text-align:center;font-size:clamp(16px,3.8vw,22px);font-weight:600;line-height:1.25;
+  box-shadow:0 6px 0 rgba(0,0,0,.35);
+}
+.cheer::after{content:"";position:absolute;left:50%;bottom:-16px;transform:translateX(-50%);width:0;height:0;border:12px solid transparent;border-top-color:var(--ink)}
+.cheer.pop{animation:cheerpop .4s cubic-bezier(.3,1.6,.5,1)}
+@keyframes cheerpop{0%{transform:scale(.86) translateY(6px)}100%{transform:scale(1) translateY(0)}}
+
+/* ---------- the highway ---------- */
+.hwbox{
+  position:relative;width:100%;height:clamp(330px,50vh,500px);
+  background:linear-gradient(180deg,#0D1533 0%,#16224A 62%,#1B2A5C 100%);
+  border:4px solid var(--ink);border-radius:24px;overflow:hidden;
+  box-shadow:inset 0 8px 30px rgba(0,0,0,.55);
+}
+#hw{position:absolute;inset:0;z-index:0;display:block}
+.padwrap{
+  position:absolute;bottom:12px;z-index:2;width:clamp(96px,25vw,152px);
+  display:flex;flex-direction:column;align-items:center;gap:9px;
+}
+.padwrap--left{left:26%;transform:translateX(-50%);--pill:linear-gradient(100deg,#FF3B3B,#FF9F1C,#FFD23F,#B8E04E)}
+.padwrap--right{left:74%;transform:translateX(-50%);--pill:linear-gradient(100deg,#3FE0C8,#29ADFF,#6C63FF,#FF6BC1)}
+
+/* ---------- pads ---------- */
+.pad{position:relative;width:100%;aspect-ratio:1;border:none;padding:0;background:none;cursor:pointer;border-radius:50%;transition:transform .07s ease}
+.pad__rim{position:absolute;inset:0;border-radius:50%;background:#0F1738;box-shadow:0 8px 0 rgba(0,0,0,.5);transition:box-shadow .1s ease}
+.pad__rainbow{position:absolute;inset:0;border-radius:50%;background:var(--arc);box-shadow:inset 0 -4px 8px rgba(0,0,0,.35);filter:saturate(.62) brightness(.60);transition:filter .1s ease}
+.pad__face{position:absolute;inset:11%;border-radius:50%;overflow:hidden;box-shadow:inset 0 4px 12px rgba(0,0,0,.45);display:grid;place-items:center}
+.pad__facebg{position:absolute;inset:0;border-radius:50%;background:var(--facearc);filter:saturate(.62) brightness(.66);transition:filter .1s ease}
+.mug{position:relative;z-index:1;width:78%;height:78%;overflow:visible}
+.mug .strap{fill:#38314F}
+.mug .buckle{fill:#6A5F92}
+.mug .lensbg{fill:#241E38}
+.mug .lensring{fill:none;stroke:#7A6FA0;stroke-width:6}
+.mug .lensshine{fill:none;stroke:rgba(255,243,228,.5);stroke-width:2}
+.mug .eyeg{transform-box:fill-box;transform-origin:center;transition:transform .12s ease}
+.mug .eye{fill:var(--cream)}
+.mug .pupil{fill:#1A1430}
+.mug .glint{fill:#fff;opacity:.92}
+.mug .cheek{fill:#FF5C7A;opacity:.30}
+.mug .freckle{fill:#8A4A12;opacity:.45}
+.mug .antenna{stroke:#38314F;stroke-width:4.5;stroke-linecap:round;fill:none;transform-box:fill-box;transform-origin:bottom center;transition:transform .14s ease}
+.mug .tip{fill:#38314F;transform-box:fill-box;transform-origin:center;transition:transform .14s ease}
+.mug .brow{stroke:var(--ink);stroke-width:5;stroke-linecap:round;fill:none;opacity:0;transition:opacity .1s ease}
+.mug .smile{stroke:var(--ink);stroke-width:5.5;stroke-linecap:round;fill:none;transition:opacity .08s ease}
+.mug .oh,.mug .tongue{opacity:0;transform-box:fill-box;transform-origin:center;transform:scale(.4);transition:opacity .08s ease,transform .08s ease}
+.mug .oh{fill:#33203F}
+.mug .tongue{fill:#FF7A9A}
+.pad.is-hit{transform:translateY(6px) scale(.95)}
+.pad.is-hit .pad__rim{box-shadow:0 2px 0 rgba(0,0,0,.5), 0 0 46px var(--glow)}
+.pad.is-hit .pad__rainbow{filter:none;animation:swirl .5s ease-out}
+.pad.is-hit .pad__facebg{filter:none}
+.pad.is-hit .mug .smile{opacity:0}
+.pad.is-hit .mug .oh,.pad.is-hit .mug .tongue{opacity:1;transform:scale(1)}
+.pad.is-hit .mug .brow{opacity:1}
+.pad.is-hit .mug .eyeg{transform:scaleY(.82)}
+.pad.is-hit .mug .antenna{transform:rotate(-14deg)}
+.pad.is-hit .mug .tip{transform:translate(-5px,1px)}
+.pad.blink .mug .eyeg{transform:scaleY(.1)}
+@keyframes swirl{from{transform:rotate(0)}to{transform:rotate(40deg)}}
+.pad--left{
+  --arc:conic-gradient(from 200deg,#FF3B3B,#FF7A1C,#FFB020,#FFD23F,#B8E04E,#FFD23F,#FF9F1C,#FF3B3B);
+  --facearc:linear-gradient(140deg,#FFB0A0,#FFD79E,#FFF0A6,#D6EF9E);--glow:#FF8A2B;
+}
+.pad--right{
+  --arc:conic-gradient(from 200deg,#3FE0C8,#29ADFF,#6C63FF,#B06BFF,#FF6BC1,#B06BFF,#29ADFF,#3FE0C8);
+  --facearc:linear-gradient(140deg,#A6F0E2,#BCE0FF,#D2CCFF,#F0C6FF);--glow:#5FA8FF;
+}
+body.sunny .pad--left{--facearc:linear-gradient(140deg,#FFE9A8,#FFDC5C,#FFC93F,#FFE070)}
+body.sunny .pad--right{--facearc:linear-gradient(140deg,#FFF0BC,#FFE070,#FFCE45,#FFDC5C)}
+.pad__ring{position:absolute;inset:0;border-radius:50%;border:7px solid var(--glow);opacity:0;pointer-events:none}
+.pad.is-ping .pad__ring{animation:ping .5s ease-out}
+@keyframes ping{0%{opacity:.95;transform:scale(1)}100%{opacity:0;transform:scale(1.4)}}
+.pad:focus-visible{outline:5px solid var(--star);outline-offset:6px}
+.sparks{position:absolute;inset:0;pointer-events:none}
+.spark{position:absolute;left:50%;top:50%;width:15px;height:15px;margin:-7px 0 0 -7px;opacity:0;
+  clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.pad.is-ping .spark{animation:fly .55s ease-out}
+.spark:nth-child(1){--dx:-80px;--dy:-64px;background:#FF3B3B}
+.spark:nth-child(2){--dx:80px;--dy:-64px;background:#FFD23F}
+.spark:nth-child(3){--dx:-68px;--dy:56px;background:#3FE0C8}
+.spark:nth-child(4){--dx:68px;--dy:56px;background:#B06BFF}
+@keyframes fly{0%{opacity:1;transform:translate(0,0) scale(.3) rotate(0)}100%{opacity:0;transform:translate(var(--dx),var(--dy)) scale(1.1) rotate(120deg)}}
+.handpill{
+  display:flex;align-items:center;gap:8px;padding:6px 15px;border-radius:99px;
+  background:var(--pill);border:4px solid var(--ink);color:var(--ink);
+  font-weight:700;font-size:clamp(12px,2.8vw,16px);filter:saturate(.62) brightness(.72);transition:filter .1s ease;
+}
+.handpill b{font-size:clamp(18px,4.2vw,25px);line-height:1}
+.padwrap.lit .handpill{filter:none}
+
+/* count-in overlay */
+.countin{position:absolute;inset:0;z-index:3;display:none;place-items:center;background:rgba(10,17,45,.35);pointer-events:none}
+.countin.is-on{display:grid}
+.countin span{font-size:clamp(100px,26vw,190px);font-weight:700;color:var(--star);line-height:1}
+.countin.is-on span{animation:pop .28s ease-out}
+@keyframes pop{0%{transform:scale(.55);opacity:.2}100%{transform:scale(1);opacity:1}}
+
+/* timer + stars */
+.readout{display:flex;align-items:center;justify-content:center;gap:clamp(12px,4vw,28px);flex-wrap:wrap;margin-top:18px}
+.clock{font-size:clamp(34px,8.5vw,50px);font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.clock small{display:block;font-family:var(--util);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#A9BCEF;font-weight:500;margin-top:4px}
+.scorebox{text-align:center}
+.stars{display:flex;gap:6px}
+.stars svg{width:clamp(26px,7vw,38px);height:auto;fill:#31407A;transition:fill .3s ease,transform .3s ease}
+.stars svg.won{fill:var(--star);transform:scale(1.14) rotate(-6deg)}
+.stars svg:nth-child(1).won{fill:#FF3B3B}
+.stars svg:nth-child(2).won{fill:#FF9F1C}
+.stars svg:nth-child(3).won{fill:#FFD23F}
+.stars svg:nth-child(4).won{fill:#3FE0C8}
+.stars svg:nth-child(5).won{fill:#B06BFF}
+.hits{font-family:var(--util);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:#A9BCEF;margin-top:8px}
+
+/* buttons */
+.transport{display:flex;gap:10px;justify-content:center;margin-top:18px;flex-wrap:wrap}
+.big{
+  font-family:var(--display);font-size:clamp(19px,4.4vw,25px);font-weight:700;
+  padding:15px 30px;border-radius:20px;border:4px solid var(--ink);cursor:pointer;color:var(--ink);
+  transition:transform .06s ease,box-shadow .06s ease;
+}
+.big--go{background:var(--go);box-shadow:0 7px 0 var(--go-deep)}
+.big--stop{background:var(--stop);box-shadow:0 7px 0 var(--stop-deep);color:#fff}
+.big--quiet{background:#2E4074;box-shadow:0 7px 0 #16204A;color:var(--cream);border-color:var(--ink)}
+.big--go:active{transform:translateY(5px);box-shadow:0 2px 0 var(--go-deep)}
+.big--stop:active{transform:translateY(5px);box-shadow:0 2px 0 var(--stop-deep)}
+.big--quiet:active{transform:translateY(5px);box-shadow:0 2px 0 #16204A}
+.big:focus-visible{outline:4px solid var(--star);outline-offset:4px}
+.big--huge{font-size:clamp(24px,6vw,34px);padding:20px 56px;border-radius:26px}
+
+/* ---------- setup deck ---------- */
+.deck{background:var(--shell-deep);padding:18px;display:grid;gap:16px}
+.panel{background:#1B2751;border:4px solid #2A3767;border-radius:20px;padding:14px 16px 16px}
+.panel > h2{margin:0 0 12px;font-family:var(--util);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:#8FA4E0}
+.sublabel{margin:14px 0 8px;font-size:15px;color:var(--cream);font-weight:500}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.chip{
+  font-family:var(--display);font-size:16px;font-weight:600;padding:10px 15px;border-radius:14px;cursor:pointer;
+  background:#2E4074;border:3px solid #3E52A0;color:var(--cream);box-shadow:0 4px 0 #16204A;
+  transition:transform .06s ease,box-shadow .06s ease,background .12s ease;
+}
+.chip:active{transform:translateY(3px);box-shadow:0 1px 0 #16204A}
+.chip.on{background:var(--star);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 #B58A00}
+.chip:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+.chip--wide{flex:1;min-width:132px;text-align:center}
+.chip--beat{min-width:52px;text-align:center;font-size:19px}
+.chip--beat.on{background:linear-gradient(100deg,#FF3B3B,#FFD23F 46%,#29ADFF 54%,#B06BFF);color:var(--ink);box-shadow:0 4px 0 #7A4A2A}
+.tempo{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.tempo__num{font-size:52px;font-weight:700;line-height:1;min-width:112px;text-align:center;font-variant-numeric:tabular-nums}
+.tempo__num small{display:block;font-family:var(--util);font-size:11px;letter-spacing:.16em;color:#8FA4E0;font-weight:500}
+.nudge{width:52px;height:52px;border-radius:16px;font-size:26px;font-weight:700;cursor:pointer;background:#2E4074;border:3px solid #3E52A0;color:var(--cream);box-shadow:0 4px 0 #16204A;font-family:var(--display)}
+.nudge:active{transform:translateY(3px);box-shadow:0 1px 0 #16204A}
+input[type=range]{flex:1;min-width:180px;height:16px;-webkit-appearance:none;appearance:none;background:#2E4074;border-radius:99px;border:3px solid #3E52A0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:var(--star);border:4px solid var(--ink);cursor:pointer}
+input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;background:var(--star);border:4px solid var(--ink);cursor:pointer}
+.grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.cell{min-width:62px;padding:12px 6px 9px;border-radius:16px;cursor:pointer;background:#2E4074;border:3px solid #3E52A0;color:var(--cream);font-family:var(--display);text-align:center;box-shadow:0 4px 0 #16204A}
+.cell:active{transform:translateY(3px);box-shadow:0 1px 0 #16204A}
+.cell b{display:block;font-size:22px;font-weight:700;line-height:1}
+.cell i{display:block;font-family:var(--util);font-style:normal;font-size:11px;color:#A9BCEF;margin-top:5px}
+.cell.v-L{background:linear-gradient(100deg,#FF3B3B,#FF9F1C,#FFD23F);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 var(--left-deep)}
+.cell.v-R{background:linear-gradient(100deg,#3FE0C8,#29ADFF,#B06BFF);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 var(--right-deep)}
+.cell.v-B{background:linear-gradient(100deg,#FF3B3B,#FFD23F 46%,#29ADFF 54%,#B06BFF);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 #7A4A2A}
+.cell.v-L i,.cell.v-R i,.cell.v-B i{color:rgba(12,19,48,.65)}
+.cell:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+.hint{margin:10px 0 0;font-family:var(--util);font-size:12px;color:#8FA4E0;line-height:1.5}
+.switches{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px}
+.sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:14px;cursor:pointer;background:#2E4074;border:3px solid #3E52A0;color:var(--cream);font-family:var(--display);font-size:15px;font-weight:500;text-align:left}
+.sw span.knob{width:44px;height:24px;border-radius:99px;background:#16204A;position:relative;flex:none}
+.sw span.knob::after{content:"";position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:#6E80BE;transition:transform .15s ease,background .15s ease}
+.sw.on{background:#2A4A6E;border-color:var(--go)}
+.sw.on span.knob{background:var(--go-deep)}
+.sw.on span.knob::after{transform:translateX(20px);background:#fff}
+.sw:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+.golauncher{padding:6px 18px 26px;text-align:center;background:var(--shell-deep)}
+
+/* finish overlay */
+.finish{position:fixed;inset:0;z-index:30;display:none;place-items:center;padding:20px;background:rgba(12,19,48,.9)}
+.finish.is-on{display:grid}
+.finish__card{background:var(--shell);border:5px solid var(--ink);border-radius:30px;box-shadow:0 10px 0 var(--ink);padding:30px 24px;text-align:center;max-width:430px}
+.finish__stars{font-size:52px;line-height:1;letter-spacing:4px;animation:spin 1.1s ease-out}
+@keyframes spin{0%{transform:scale(.3) rotate(-90deg)}70%{transform:scale(1.16) rotate(8deg)}100%{transform:scale(1) rotate(0)}}
+.finish__card h2{margin:12px 0 6px;font-size:31px;font-weight:700}
+.finish__card p{margin:0 0 20px;font-family:var(--util);font-size:14px;color:#A9BCEF;line-height:1.6}
+.finish__card .transport{margin-top:0}
+
+@media (max-width:560px){
+  body{padding:8px 6px 30px}
+  .device{border-radius:26px}
+  .stage{padding:12px 8px 18px}
+  .deck{padding:12px}
+  .transport .big{flex:1;padding:15px 8px}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+}
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="badge">
+    <h1><span class="dot"></span>Stick Buddy</h1>
+    <p id="badgeInfo">Set it up</p>
+  </div>
+
+  <!-- ==================== SETUP SCREEN ==================== -->
+  <section id="setup">
+    <div class="deck">
+
+      <div class="panel">
+        <h2>Speed</h2>
+        <div class="tempo">
+          <button class="nudge" id="tempoDown" aria-label="Slower">−</button>
+          <div class="tempo__num"><span id="tempoNum">100</span><small>beats per minute</small></div>
+          <button class="nudge" id="tempoUp" aria-label="Faster">+</button>
+          <input type="range" id="tempoRange" min="40" max="180" step="1" value="100" aria-label="Tempo">
+        </div>
+        <div class="row" style="margin-top:12px" id="tempoPresets">
+          <button class="chip" data-t="60">60 slow</button>
+          <button class="chip" data-t="80">80</button>
+          <button class="chip on" data-t="100">100</button>
+          <button class="chip" data-t="120">120 quick</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Time signature</h2>
+        <div class="row" id="sigRow">
+          <button class="chip" data-beats="2" data-name="2/4">2/4</button>
+          <button class="chip" data-beats="3" data-name="3/4">3/4</button>
+          <button class="chip on" data-beats="4" data-name="4/4">4/4</button>
+          <button class="chip" data-beats="5" data-name="5/4">5/4</button>
+          <button class="chip" data-beats="6" data-name="6/8">6/8</button>
+          <button class="chip" data-beats="8" data-name="8">8</button>
+        </div>
+        <div class="row" style="margin-top:10px" id="subRow">
+          <button class="chip on" data-sub="1">♩ One hit per beat</button>
+          <button class="chip" data-sub="2">♪ Two hits per beat</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Which stick hits</h2>
+        <div class="row" id="leadRow">
+          <button class="chip on" data-lead="R">Right stick leads</button>
+          <button class="chip" data-lead="L">Left stick leads</button>
+        </div>
+        <p class="sublabel">Other stick joins in on beat:</p>
+        <div class="row" id="joinRow"></div>
+        <p class="sublabel">Or build it beat by beat:</p>
+        <div class="grid" id="grid"></div>
+        <div class="row">
+          <button class="chip chip--wide" id="swapBtn">↔ Swap hands</button>
+          <button class="chip chip--wide" data-preset="alt">R L R L</button>
+          <button class="chip chip--wide" data-preset="right">Right only</button>
+          <button class="chip chip--wide" data-preset="left">Left only</button>
+          <button class="chip chip--wide" data-preset="both">Both together</button>
+          <button class="chip chip--wide" data-preset="paradiddle">Paradiddle</button>
+          <button class="chip chip--wide" data-preset="clear">Clear all</button>
+        </div>
+        <p class="hint">Tap a beat to change it: right → left → both → rest.</p>
+      </div>
+
+      <div class="panel">
+        <h2>How long</h2>
+        <div class="row" id="minsRow">
+          <button class="chip" data-min="1">1 min</button>
+          <button class="chip" data-min="2">2 min</button>
+          <button class="chip on" data-min="3">3 min</button>
+          <button class="chip" data-min="4">4 min</button>
+          <button class="chip" data-min="5">5 min</button>
+          <button class="chip" data-min="10">10 min</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Sound &amp; scrolling</h2>
+        <div class="switches">
+          <button class="sw on" id="swClick">Metronome click <span class="knob"></span></button>
+          <button class="sw on" id="swTones">Different note per hand <span class="knob"></span></button>
+          <button class="sw" id="swSpeak">Count out loud <span class="knob"></span></button>
+          <button class="sw on" id="swCountIn">Count in first <span class="knob"></span></button>
+          <button class="sw on" id="swCheer">Cheer him on <span class="knob"></span></button>
+          <button class="sw on" id="swNumbers">Beat numbers on track <span class="knob"></span></button>
+          <button class="sw" id="swSunny">Sunny yellow buddies <span class="knob"></span></button>
+        </div>
+        <p class="sublabel">How far ahead he can see:</p>
+        <div class="row" id="lookRow">
+          <button class="chip" data-look="2">2 beats</button>
+          <button class="chip on" data-look="4">4 beats</button>
+          <button class="chip" data-look="6">6 beats</button>
+          <button class="chip" data-look="8">8 beats</button>
+        </div>
+      </div>
+
+    </div>
+    <div class="golauncher">
+      <button class="big big--go big--huge" id="goBtn">▶ GO</button>
+    </div>
+  </section>
+
+  <!-- ==================== PLAY SCREEN ==================== -->
+  <section id="play" hidden>
+    <div class="stage">
+      <div class="cheer" id="cheer">Ready when you are!</div>
+
+      <div class="hwbox" id="hwbox">
+        <canvas id="hw"></canvas>
+
+        <div class="padwrap padwrap--left" id="wrapL">
+          <button class="pad pad--left" id="padL" aria-label="Left hand pad">
+            <span class="pad__rim"><span class="pad__rainbow"></span></span>
+            <span class="pad__face">
+              <span class="pad__facebg"></span>
+              <svg class="mug" viewBox="0 0 100 100" aria-hidden="true">
+                <path class="antenna" d="M50 26 C50 17 45 13 47.5 7"/>
+                <ellipse class="tip" cx="46" cy="5.5" rx="7.5" ry="4.6" transform="rotate(-26 46 5.5)"/>
+                <path class="brow" d="M13 29 L43 24"/><path class="brow" d="M87 29 L57 24"/>
+                <rect class="strap" x="-40" y="37" width="180" height="15" rx="7"/>
+                <rect class="buckle" x="3" y="39" width="7" height="11" rx="2"/>
+                <rect class="buckle" x="90" y="39" width="7" height="11" rx="2"/>
+                <circle class="lensbg" cx="30" cy="44.5" r="16"/>
+                <circle class="lensbg" cx="70" cy="44.5" r="16"/>
+                <g class="eyeg">
+                  <ellipse class="eye" cx="30" cy="44.5" rx="12" ry="13"/>
+                  <ellipse class="eye" cx="70" cy="44.5" rx="12" ry="13"/>
+                  <circle class="pupil" cx="30" cy="46.5" r="6"/>
+                  <circle class="pupil" cx="70" cy="46.5" r="6"/>
+                  <circle class="glint" cx="25.6" cy="40" r="2.7"/>
+                  <circle class="glint" cx="65.6" cy="40" r="2.7"/>
+                </g>
+                <circle class="lensring" cx="30" cy="44.5" r="17"/>
+                <circle class="lensring" cx="70" cy="44.5" r="17"/>
+                <circle class="lensshine" cx="30" cy="44.5" r="19.4"/>
+                <circle class="lensshine" cx="70" cy="44.5" r="19.4"/>
+                <circle class="freckle" cx="7" cy="68" r="1.7"/>
+                <circle class="freckle" cx="12.5" cy="70.5" r="1.7"/>
+                <circle class="freckle" cx="8" cy="74" r="1.7"/>
+                <circle class="freckle" cx="93" cy="68" r="1.7"/>
+                <circle class="freckle" cx="87.5" cy="70.5" r="1.7"/>
+                <circle class="freckle" cx="92" cy="74" r="1.7"/>
+                <circle class="cheek" cx="10" cy="70" r="7"/>
+                <circle class="cheek" cx="90" cy="70" r="7"/>
+                <path class="smile" d="M34 70 Q50 84 66 70"/>
+                <ellipse class="oh" cx="50" cy="74" rx="12" ry="12.5"/>
+                <ellipse class="tongue" cx="50" cy="81.5" rx="6.5" ry="4.5"/>
+              </svg>
+            </span>
+            <span class="pad__ring"></span>
+            <span class="sparks"><i class="spark"></i><i class="spark"></i><i class="spark"></i><i class="spark"></i></span>
+          </button>
+          <div class="handpill"><b>L</b> Left</div>
+        </div>
+
+        <div class="padwrap padwrap--right" id="wrapR">
+          <button class="pad pad--right" id="padR" aria-label="Right hand pad">
+            <span class="pad__rim"><span class="pad__rainbow"></span></span>
+            <span class="pad__face">
+              <span class="pad__facebg"></span>
+              <svg class="mug" viewBox="0 0 100 100" aria-hidden="true">
+                <path class="antenna" d="M50 26 C50 17 55 13 52.5 8"/>
+                <circle class="tip" cx="52" cy="5.5" r="5.4"/>
+                <path class="brow" d="M13 24 L43 29"/><path class="brow" d="M87 24 L57 29"/>
+                <rect class="strap" x="-40" y="37" width="180" height="15" rx="7"/>
+                <rect class="buckle" x="3" y="39" width="7" height="11" rx="2"/>
+                <rect class="buckle" x="90" y="39" width="7" height="11" rx="2"/>
+                <rect class="lensbg" x="15" y="29.5" width="30" height="30" rx="9"/>
+                <rect class="lensbg" x="55" y="29.5" width="30" height="30" rx="9"/>
+                <g class="eyeg">
+                  <ellipse class="eye" cx="30" cy="44.5" rx="12" ry="13"/>
+                  <ellipse class="eye" cx="70" cy="44.5" rx="12" ry="13"/>
+                  <circle class="pupil" cx="30" cy="46.5" r="6"/>
+                  <circle class="pupil" cx="70" cy="46.5" r="6"/>
+                  <circle class="glint" cx="25.6" cy="40" r="2.7"/>
+                  <circle class="glint" cx="65.6" cy="40" r="2.7"/>
+                </g>
+                <rect class="lensring" x="13.8" y="28.3" width="32.4" height="32.4" rx="10"/>
+                <rect class="lensring" x="53.8" y="28.3" width="32.4" height="32.4" rx="10"/>
+                <circle class="cheek" cx="10" cy="70" r="7"/>
+                <circle class="cheek" cx="90" cy="70" r="7"/>
+                <path class="smile" d="M34 70 Q50 84 66 70"/>
+                <ellipse class="oh" cx="50" cy="74" rx="12" ry="12.5"/>
+                <ellipse class="tongue" cx="50" cy="81.5" rx="6.5" ry="4.5"/>
+              </svg>
+            </span>
+            <span class="pad__ring"></span>
+            <span class="sparks"><i class="spark"></i><i class="spark"></i><i class="spark"></i><i class="spark"></i></span>
+          </button>
+          <div class="handpill"><b>R</b> Right</div>
+        </div>
+
+        <div class="countin" id="countin"><span id="countinNum">4</span></div>
+      </div>
+
+      <div class="readout">
+        <div class="clock"><span id="clock">3:00</span><small id="clockLabel">Time left</small></div>
+        <div class="scorebox">
+          <div class="stars" id="stars"></div>
+          <div class="hits" id="hits">0 hits</div>
+        </div>
+      </div>
+
+      <div class="transport">
+        <button class="big big--stop" id="stopBtn">Stop</button>
+        <button class="big big--go" id="resumeBtn" hidden>Keep going</button>
+        <button class="big big--go" id="restartBtn" hidden>Start over</button>
+        <button class="big big--quiet" id="backBtn">⚙ Settings</button>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="finish" id="finish">
+  <div class="finish__card">
+    <div class="finish__stars">🌈⭐🌈</div>
+    <h2>You did it!</h2>
+    <p id="finishText"></p>
+    <div class="transport">
+      <button class="big big--go" id="againBtn">Go again</button>
+      <button class="big big--quiet" id="finishBackBtn">⚙ Settings</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+const state = {
+  tempo:100, beats:4, sigName:"4/4", sub:1,
+  pattern:["R","R","R","B"],
+  minutes:3, lookBeats:4, sunny:false,
+  click:true, tones:true, speak:false, countIn:true, cheer:true, numbers:true
+};
+
+const NEXT = { R:"L", L:"B", B:"x", x:"R" };
+const FACE = { R:"R", L:"L", B:"LR", x:"–" };
+const WARM = ["#FF3B3B","#FF9F1C","#FFD23F"];
+const COOL = ["#3FE0C8","#29ADFF","#B06BFF"];
+
+const CHEERS = ["Nice and steady!","You've got it!","Great counting!","Keep those sticks moving!",
+  "Sounding good!","Lovely rhythm!","Strong sticks!","You're on the beat!"];
+const MILESTONE = {1:"One star! Keep going!",2:"Two stars — you're flying!",
+  3:"Three stars! Over halfway!",4:"Four stars — nearly there!",5:"Five stars! Amazing!"};
+
+/* ---------------- audio ---------------- */
+let ctx = null;
+function audio(){
+  if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
+  if(ctx.state === "suspended") ctx.resume();
+  return ctx;
+}
+function blip(time, freq, vol, dur, type){
+  const o = ctx.createOscillator(), g = ctx.createGain();
+  o.type = type || "square";
+  o.frequency.setValueAtTime(freq, time);
+  g.gain.setValueAtTime(0.0001, time);
+  g.gain.exponentialRampToValueAtTime(vol, time + 0.004);
+  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  o.connect(g); g.connect(ctx.destination);
+  o.start(time); o.stop(time + dur + 0.02);
+}
+function clickSound(t, accent){ if(state.click) blip(t, accent?1500:1000, accent?0.30:0.15, 0.05, "square"); }
+function handSound(t, hand){
+  if(!state.tones) return;
+  if(hand === "L" || hand === "B") blip(t, 196, 0.32, 0.16, "triangle");
+  if(hand === "R" || hand === "B") blip(t, 330, 0.32, 0.16, "triangle");
+}
+function say(n){
+  if(!state.speak || !("speechSynthesis" in window)) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(String(n));
+  u.rate = 1.35; u.pitch = 1.3;
+  speechSynthesis.speak(u);
+}
+function chime(t0){ [523,659,784,1047].forEach((f,k) => blip(t0 + k*0.12, f, 0.28, 0.22, "triangle")); }
+
+/* ---------------- timeline ---------------- */
+/* One event list feeds both the audio scheduler and the scrolling track,
+   so a note is drawn falling toward exactly the moment it will sound. */
+let events = [];
+let genTime = 0, genPhase = "countin", genCi = 0, genCell = 0;
+let running = false, paused = false, lookaheadId = null, rafId = null;
+let playStart = 0, elapsedBase = 0;
+let hits = 0, starsWon = 0, cheerIdx = 0, lastCheerAt = 0;
+let bursts = [];
+
+const cells    = () => state.beats * state.sub;
+const cellDur  = () => 60 / state.tempo / state.sub;
+const target   = () => state.minutes * 60;
+const approach = () => state.lookBeats * 60 / state.tempo;
+
+function genUntil(limit){
+  let guard = 0;
+  while(genTime < limit && guard++ < 2000){
+    if(genPhase === "countin"){
+      events.push({ t:genTime, kind:"ci", n:genCi + 1 });
+      genTime += 60 / state.tempo;
+      genCi++;
+      if(genCi >= state.beats){ genPhase = "play"; genCell = 0; playStart = genTime; }
+    } else {
+      const i = genCell % cells();
+      events.push({ t:genTime, kind:"cell", i, v:state.pattern[i] || "x" });
+      genTime += cellDur();
+      genCell = (i + 1) % cells();
+    }
+  }
+}
+function scheduler(){
+  const now = ctx.currentTime;
+  genUntil(now + approach() + 1);
+  for(const ev of events){
+    if(ev.sched || ev.t >= now + 0.12) continue;
+    ev.sched = true;
+    if(ev.kind === "ci") clickSound(ev.t, ev.n === 1);
+    else { clickSound(ev.t, ev.i === 0); if(ev.v !== "x") handSound(ev.t, ev.v); }
+  }
+  while(events.length && events[0].t < now - 1.2) events.shift();
+}
+
+/* ---------------- the scrolling track ---------------- */
+const cv = $("#hw"), g = cv.getContext("2d");
+let W = 0, H = 0, laneX = [0,0], hitY = 0, noteR = 24, padHalf = 40;
+
+function sizeTrack(){
+  const box = $("#hwbox"), dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = box.clientWidth; H = box.clientHeight;
+  cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+  cv.style.width = W + "px"; cv.style.height = H + "px";
+  g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const wl = $("#wrapL"), pl = $("#padL"), wr = $("#wrapR"), pr = $("#padR");
+  laneX = [ wl.offsetLeft + pl.offsetLeft + pl.offsetWidth/2,
+            wr.offsetLeft + pr.offsetLeft + pr.offsetWidth/2 ];
+  padHalf = pl.offsetWidth / 2;
+  hitY = wl.offsetTop + pl.offsetTop;          // notes land on the top of the pad
+  noteR = Math.max(16, Math.min(40, pl.offsetWidth * 0.30));
+}
+window.addEventListener("resize", () => { if(!$("#play").hidden) sizeTrack(); });
+
+const ease = p => p * (0.58 + 0.42 * p);        // gentle acceleration toward the pads
+const scaleAt = p => 0.34 + 0.66 * p;
+const yAt = p => 8 + (hitY - 8) * ease(p);
+const xAt = (lane, p) => W/2 + (laneX[lane] - W/2) * scaleAt(p);
+
+function gem(lane, p, alpha){
+  const s = scaleAt(p), x = xAt(lane, p), y = yAt(p), r = noteR * s;
+  const cols = lane ? COOL : WARM;
+  const grd = g.createLinearGradient(x - r, y - r, x + r, y + r);
+  grd.addColorStop(0, cols[0]); grd.addColorStop(0.5, cols[1]); grd.addColorStop(1, cols[2]);
+  g.globalAlpha = alpha;
+  g.beginPath(); g.arc(x, y, r, 0, 6.2832);
+  g.fillStyle = grd; g.fill();
+  g.lineWidth = Math.max(2, 3.4 * s); g.strokeStyle = "rgba(255,243,228,.92)"; g.stroke();
+  g.beginPath(); g.arc(x - r*0.3, y - r*0.34, r*0.24, 0, 6.2832);
+  g.fillStyle = "rgba(255,255,255,.55)"; g.fill();
+  g.globalAlpha = 1;
+}
+
+function drawTrack(now){
+  if(!W) return;
+  g.clearRect(0, 0, W, H);
+  const ap = approach();
+
+  /* lane floors, narrow at the top, wide at the pads */
+  for(let L = 0; L < 2; L++){
+    g.beginPath();
+    for(let k = 0; k <= 12; k++){ const p = k/12, s = scaleAt(p);
+      g.lineTo(xAt(L,p) - padHalf*0.92*s, yAt(p)); }
+    for(let k = 12; k >= 0; k--){ const p = k/12, s = scaleAt(p);
+      g.lineTo(xAt(L,p) + padHalf*0.92*s, yAt(p)); }
+    g.closePath();
+    const lg = g.createLinearGradient(0, 0, 0, hitY);
+    lg.addColorStop(0, L ? "rgba(41,173,255,.03)" : "rgba(255,159,28,.03)");
+    lg.addColorStop(1, L ? "rgba(41,173,255,.16)" : "rgba(255,159,28,.16)");
+    g.fillStyle = lg; g.fill();
+    g.strokeStyle = L ? "rgba(41,173,255,.28)" : "rgba(255,159,28,.28)";
+    g.lineWidth = 2; g.stroke();
+  }
+
+  /* beat lines sliding down with the music */
+  for(const ev of events){
+    if(ev.kind !== "cell" || ev.i % state.sub !== 0) continue;
+    const p = 1 - (ev.t - now) / ap;
+    if(p < 0 || p > 1) continue;
+    const s = scaleAt(p), y = yAt(p);
+    g.globalAlpha = 0.08 + 0.26 * p;
+    g.strokeStyle = "#FFF3E4"; g.lineWidth = Math.max(1, 2*s);
+    g.beginPath();
+    g.moveTo(xAt(0,p) - padHalf*0.92*s, y); g.lineTo(xAt(1,p) + padHalf*0.92*s, y);
+    g.stroke();
+    if(state.numbers){
+      g.globalAlpha = 0.25 + 0.5 * p;
+      g.fillStyle = "#FFF3E4";
+      g.font = "600 " + Math.round(13 + 15*s) + "px " + '"Fredoka",system-ui,sans-serif';
+      g.textAlign = "right"; g.textBaseline = "middle";
+      g.fillText(String(ev.i / state.sub + 1), xAt(0,p) - padHalf*1.05*s - 6, y);
+    }
+    g.globalAlpha = 1;
+  }
+
+  /* the hit line the notes land on */
+  g.globalAlpha = 0.75; g.strokeStyle = "#FFF3E4"; g.lineWidth = 3;
+  g.setLineDash([10, 8]);
+  g.beginPath(); g.moveTo(laneX[0] - padHalf*1.1, hitY); g.lineTo(laneX[1] + padHalf*1.1, hitY); g.stroke();
+  g.setLineDash([]); g.globalAlpha = 1;
+
+  /* falling notes */
+  for(const ev of events){
+    if(ev.kind !== "cell" || ev.v === "x") continue;
+    const p = 1 - (ev.t - now) / ap;
+    if(p < 0 || p > 1) continue;
+    const lanes = ev.v === "B" ? [0,1] : (ev.v === "L" ? [0] : [1]);
+    if(ev.v === "B"){                       /* join both hands with a bar */
+      const s = scaleAt(p), y = yAt(p);
+      const bg = g.createLinearGradient(xAt(0,p), y, xAt(1,p), y);
+      bg.addColorStop(0, WARM[1]); bg.addColorStop(1, COOL[1]);
+      g.globalAlpha = 0.7; g.strokeStyle = bg; g.lineWidth = Math.max(3, 9*s);
+      g.beginPath(); g.moveTo(xAt(0,p), y); g.lineTo(xAt(1,p), y); g.stroke();
+      g.globalAlpha = 1;
+    }
+    lanes.forEach(L => gem(L, p, Math.min(1, 0.25 + p * 2.2)));
+  }
+
+  /* splash where a note landed */
+  bursts = bursts.filter(b => now - b.t < 0.42);
+  for(const b of bursts){
+    const k = (now - b.t) / 0.42;
+    g.globalAlpha = (1 - k) * 0.8;
+    g.strokeStyle = b.lane ? COOL[1] : WARM[1];
+    g.lineWidth = 5 * (1 - k) + 1;
+    g.beginPath(); g.arc(laneX[b.lane], hitY, noteR + k * noteR * 2.4, 0, 6.2832); g.stroke();
+    g.globalAlpha = 1;
+  }
+}
+
+/* ---------------- frame loop ---------------- */
+function frame(){
+  const now = ctx ? ctx.currentTime : 0;
+  for(const ev of events){
+    if(ev.fired || ev.t > now) continue;
+    ev.fired = true;
+    if(ev.kind === "ci"){
+      const box = $("#countin");
+      box.classList.add("is-on");
+      $("#countinNum").textContent = ev.n;
+      box.classList.remove("is-on"); void box.offsetWidth; box.classList.add("is-on");
+      say(ev.n);
+    } else {
+      $("#countin").classList.remove("is-on");
+      fireCell(ev.i, ev.v, now);
+    }
+  }
+  drawTrack(now);
+
+  if(playStart && now >= playStart && !paused){
+    const elapsed = now - playStart;
+    updateClock(target() - elapsed);
+    const frac = elapsed / target();
+    updateStars(frac);
+    const earned = Math.min(5, Math.floor(frac * 5));
+    if(earned > starsWon){ starsWon = earned; setCheer(MILESTONE[earned]); lastCheerAt = elapsed; }
+    else if(state.cheer && elapsed - lastCheerAt > 22){ setCheer(CHEERS[cheerIdx++ % CHEERS.length]); lastCheerAt = elapsed; }
+    if(elapsed >= target()){ finish(); return; }
+  }
+  rafId = requestAnimationFrame(frame);
+}
+
+function setCheer(msg){
+  const el = $("#cheer");
+  el.textContent = msg;
+  el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
+}
+function fireCell(i, v, now){
+  if(v === "L" || v === "B"){ hit($("#padL"), $("#wrapL")); bursts.push({lane:0, t:now}); }
+  if(v === "R" || v === "B"){ hit($("#padR"), $("#wrapR")); bursts.push({lane:1, t:now}); }
+  if(v === "B") hits += 2; else if(v !== "x") hits += 1;
+  $("#hits").textContent = hits + (hits === 1 ? " hit" : " hits");
+  if(state.speak && i % state.sub === 0) say(i / state.sub + 1);
+}
+function hit(pad, wrap){
+  pad.classList.add("is-hit"); wrap.classList.add("lit");
+  pad.classList.remove("is-ping"); void pad.offsetWidth; pad.classList.add("is-ping");
+  clearTimeout(pad._t);
+  pad._t = setTimeout(() => { pad.classList.remove("is-hit"); wrap.classList.remove("lit"); },
+    Math.max(90, cellDur() * 1000 * 0.55));
+}
+setInterval(() => {
+  ["#padL","#padR"].forEach(sel => {
+    const p = $(sel);
+    if(!p || p.classList.contains("is-hit") || Math.random() > 0.45) return;
+    p.classList.add("blink");
+    setTimeout(() => p.classList.remove("blink"), 150);
+  });
+}, 3400);
+
+/* ---------------- screens ---------------- */
+function showPlay(){
+  $("#setup").hidden = true; $("#play").hidden = false;
+  $("#badgeInfo").textContent = state.tempo + " bpm · " + state.sigName;
+  sizeTrack();
+}
+function showSetup(){
+  stopEngine(); paused = false; playStart = 0; elapsedBase = 0;
+  $("#finish").classList.remove("is-on");
+  $("#play").hidden = true; $("#setup").hidden = false;
+  $("#badgeInfo").textContent = "Set it up";
+}
+
+/* ---------------- transport ---------------- */
+function begin(fromSeconds){
+  audio();
+  if(state.speak && "speechSynthesis" in window) speechSynthesis.speak(new SpeechSynthesisUtterance(" "));
+  running = true; paused = false;
+  events = []; bursts = [];
+  genPhase = (state.countIn && !fromSeconds) ? "countin" : "play";
+  genCi = 0; genCell = 0;
+  genTime = ctx.currentTime + 0.35;
+  if(genPhase === "play") playStart = genTime - (fromSeconds || 0);
+  genUntil(genTime + approach() + 1);
+  lookaheadId = setInterval(scheduler, 25);
+  scheduler();
+  rafId = requestAnimationFrame(frame);
+  setCheer(fromSeconds ? "Back at it!" : "Here we go!");
+  $("#stopBtn").hidden = false; $("#resumeBtn").hidden = true; $("#restartBtn").hidden = true;
+  $("#clockLabel").textContent = "Time left";
+  keepAwake();
+}
+function start(){
+  hits = 0; starsWon = 0; cheerIdx = 0; lastCheerAt = 0; elapsedBase = 0;
+  $("#hits").textContent = "0 hits";
+  updateStars(0); updateClock(target());
+  $("#finish").classList.remove("is-on");
+  begin(0);
+}
+function pause(){
+  if(!running) return;
+  elapsedBase = playStart ? Math.max(0, ctx.currentTime - playStart) : 0;
+  stopEngine(); paused = true;
+  setCheer("Taking a break — ready when you are.");
+  $("#stopBtn").hidden = true;
+  $("#resumeBtn").hidden = elapsedBase <= 0.5;
+  $("#restartBtn").hidden = false;
+  $("#clockLabel").textContent = "Paused";
+}
+function stopEngine(){
+  running = false;
+  clearInterval(lookaheadId); lookaheadId = null;
+  cancelAnimationFrame(rafId); rafId = null;
+  events = []; bursts = [];
+  if(W) g.clearRect(0, 0, W, H);
+  $("#countin").classList.remove("is-on");
+  ["L","R"].forEach(h => { $("#pad"+h).classList.remove("is-hit"); $("#wrap"+h).classList.remove("lit"); });
+  releaseAwake();
+}
+function finish(){
+  stopEngine();
+  updateClock(0); updateStars(1);
+  const m = state.minutes;
+  $("#finishText").textContent = m + (m === 1 ? " minute" : " minutes") + " at " + state.tempo +
+    " bpm, in " + state.sigName + ". That's " + hits + " stick hits without stopping.";
+  $("#finish").classList.add("is-on");
+  $("#againBtn").focus();
+  if(ctx) chime(ctx.currentTime);
+  setCheer("Brilliant work!");
+  paused = false; playStart = 0; elapsedBase = 0;
+  $("#stopBtn").hidden = true; $("#resumeBtn").hidden = true; $("#restartBtn").hidden = false;
+  $("#clockLabel").textContent = "Practice time";
+}
+let wakeLock = null;
+async function keepAwake(){ try{ if("wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen"); }catch(e){} }
+function releaseAwake(){ try{ if(wakeLock){ wakeLock.release(); wakeLock = null; } }catch(e){} }
+
+/* ---------------- readouts ---------------- */
+function updateClock(sec){
+  sec = Math.max(0, sec);
+  $("#clock").textContent = Math.floor(sec/60) + ":" + String(Math.floor(sec%60)).padStart(2,"0");
+}
+function updateStars(frac){ $$("#stars svg").forEach((s,i) => s.classList.toggle("won", frac >= (i+1)/5)); }
+$("#stars").innerHTML = Array.from({length:5}, () =>
+  '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>').join("");
+
+/* ---------------- setup controls ---------------- */
+function labelFor(i){
+  const beat = Math.floor(i / state.sub) + 1;
+  return (i % state.sub === 0) ? String(beat) : "&";
+}
+function leadHand(){
+  let r = 0, l = 0;
+  state.pattern.forEach(v => { if(v === "R") r++; if(v === "L") l++; });
+  return l > r ? "L" : "R";
+}
+function redraw(){
+  $("#grid").innerHTML = state.pattern.map((v,i) =>
+    '<button class="cell v-' + v + '" data-i="' + i + '"><b>' + FACE[v] + "</b><i>" + labelFor(i) + "</i></button>").join("");
+  $("#joinRow").innerHTML = Array.from({length:state.beats}, (_,k) =>
+    '<button class="chip chip--beat' + (state.pattern[k*state.sub] === "B" ? " on" : "") +
+    '" data-join="' + k + '">' + (k+1) + "</button>").join("");
+  const lead = leadHand();
+  $$("#leadRow .chip").forEach(c => c.classList.toggle("on", c.dataset.lead === lead));
+}
+function resize(){
+  const want = cells(), old = state.pattern.slice(), next = [];
+  for(let i = 0; i < want; i++) next.push(old[i] || (i % 2 ? "L" : "R"));
+  state.pattern = next; redraw();
+}
+function setTempo(v){
+  state.tempo = Math.min(180, Math.max(40, Math.round(v)));
+  $("#tempoNum").textContent = state.tempo;
+  $("#tempoRange").value = state.tempo;
+  $$("#tempoPresets .chip").forEach(c => c.classList.toggle("on", +c.dataset.t === state.tempo));
+}
+$("#tempoUp").onclick = () => setTempo(state.tempo + 5);
+$("#tempoDown").onclick = () => setTempo(state.tempo - 5);
+$("#tempoRange").oninput = e => setTempo(+e.target.value);
+$$("#tempoPresets .chip").forEach(c => c.onclick = () => setTempo(+c.dataset.t));
+
+$$("#sigRow .chip").forEach(c => c.onclick = () => {
+  $$("#sigRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+  state.beats = +c.dataset.beats; state.sigName = c.dataset.name; resize();
+});
+$$("#subRow .chip").forEach(c => c.onclick = () => {
+  $$("#subRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+  state.sub = +c.dataset.sub; resize();
+});
+$$("#lookRow .chip").forEach(c => c.onclick = () => {
+  $$("#lookRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+  state.lookBeats = +c.dataset.look;
+});
+$("#grid").onclick = e => {
+  const cell = e.target.closest(".cell"); if(!cell) return;
+  state.pattern[+cell.dataset.i] = NEXT[state.pattern[+cell.dataset.i]]; redraw();
+};
+$("#joinRow").onclick = e => {
+  const chip = e.target.closest("[data-join]"); if(!chip) return;
+  const i = +chip.dataset.join * state.sub;
+  state.pattern[i] = state.pattern[i] === "B" ? leadHand() : "B"; redraw();
+};
+$$("#leadRow .chip").forEach(c => c.onclick = () => {
+  const lead = c.dataset.lead;
+  state.pattern = state.pattern.map(v => (v === "B" || v === "x") ? v : lead); redraw();
+});
+$("#swapBtn").onclick = () => {
+  state.pattern = state.pattern.map(v => v === "L" ? "R" : v === "R" ? "L" : v); redraw();
+};
+$$("[data-preset]").forEach(b => b.onclick = () => {
+  const p = b.dataset.preset, n = cells();
+  if(p === "paradiddle"){
+    $$("#sigRow .chip").forEach(x => x.classList.toggle("on", x.dataset.beats === "4"));
+    $$("#subRow .chip").forEach(x => x.classList.toggle("on", x.dataset.sub === "2"));
+    state.beats = 4; state.sigName = "4/4"; state.sub = 2;
+    state.pattern = ["R","L","R","R","L","R","L","L"];
+  }
+  if(p === "alt")   state.pattern = Array.from({length:n}, (_,i) => i % 2 ? "L" : "R");
+  if(p === "right") state.pattern = Array(n).fill("R");
+  if(p === "left")  state.pattern = Array(n).fill("L");
+  if(p === "both")  state.pattern = Array(n).fill("B");
+  if(p === "clear") state.pattern = Array(n).fill("x");
+  redraw();
+});
+$$("#minsRow .chip").forEach(c => c.onclick = () => {
+  $$("#minsRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+  state.minutes = +c.dataset.min; updateClock(target());
+});
+function toggle(el, key){ el.onclick = () => { state[key] = !state[key]; el.classList.toggle("on", state[key]); }; }
+toggle($("#swClick"),"click"); toggle($("#swTones"),"tones"); toggle($("#swSpeak"),"speak");
+toggle($("#swCountIn"),"countIn"); toggle($("#swCheer"),"cheer"); toggle($("#swNumbers"),"numbers");
+$("#swSunny").onclick = () => {
+  state.sunny = !state.sunny;
+  $("#swSunny").classList.toggle("on", state.sunny);
+  document.body.classList.toggle("sunny", state.sunny);
+};
+
+$("#goBtn").onclick = () => { showPlay(); start(); };
+$("#stopBtn").onclick = pause;
+$("#resumeBtn").onclick = () => begin(elapsedBase);
+$("#restartBtn").onclick = start;
+$("#backBtn").onclick = showSetup;
+$("#againBtn").onclick = () => { $("#finish").classList.remove("is-on"); start(); };
+$("#finishBackBtn").onclick = showSetup;
+
+$("#padL").onclick = () => { audio(); blip(ctx.currentTime,196,0.32,0.16,"triangle"); hit($("#padL"),$("#wrapL")); };
+$("#padR").onclick = () => { audio(); blip(ctx.currentTime,330,0.32,0.16,"triangle"); hit($("#padR"),$("#wrapR")); };
+
+document.addEventListener("keydown", e => {
+  if(e.code === "Space" && !e.target.closest("button,input")){
+    e.preventDefault();
+    if($("#play").hidden){ showPlay(); start(); }
+    else if(running) pause();
+    else if(paused && elapsedBase > 0.5) begin(elapsedBase);
+    else start();
+  }
+});
+document.addEventListener("visibilitychange", () => { if(document.hidden && running) pause(); });
+
+/* ---------------- boot ---------------- */
+redraw(); setTempo(100); updateClock(target()); updateStars(0);
+</script>
+</body>
+</html>
