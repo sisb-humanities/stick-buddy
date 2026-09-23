@@ -3,12 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Stick Buddy — drum pad practice</title>
+<title>Dylan's Drum Buddy</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 <style>
 :root{
+  color-scheme:dark;
   --shell:#22315E; --shell-lit:#2E4074; --shell-deep:#141F42; --ink:#0C1330; --cream:#FFF3E4;
   --left-deep:#B4661A; --right-deep:#0A6FB5;
   --star:#FFD23F; --go:#00D18F; --go-deep:#00916A; --stop:#FF4D6D; --stop-deep:#B31237;
@@ -23,7 +24,7 @@ body{
     radial-gradient(circle at 20% 0%, #35478A 0%, transparent 55%),
     radial-gradient(circle at 85% 100%, #3B2A6B 0%, transparent 50%),
     var(--shell-deep);
-  min-height:100vh;color:var(--cream);padding:14px 10px 40px;-webkit-tap-highlight-color:transparent;
+  min-height:100vh;color:var(--cream);padding:14px 16px 40px;-webkit-tap-highlight-color:transparent;
 }
 .device{
   max-width:880px;margin:0 auto;background:var(--shell);
@@ -56,7 +57,7 @@ body{
 
 /* ---------- the highway ---------- */
 .hwbox{
-  position:relative;width:100%;height:clamp(330px,50vh,500px);
+  position:relative;width:100%;height:clamp(340px,58vh,600px);
   background:linear-gradient(180deg,#0D1533 0%,#16224A 62%,#1B2A5C 100%);
   border:4px solid var(--ink);border-radius:24px;overflow:hidden;
   box-shadow:inset 0 8px 30px rgba(0,0,0,.55);
@@ -68,6 +69,24 @@ body{
 }
 .padwrap--left{left:26%;transform:translateX(-50%);--pill:linear-gradient(100deg,#FF3B3B,#FF9F1C,#FFD23F,#B8E04E)}
 .padwrap--right{left:74%;transform:translateX(-50%);--pill:linear-gradient(100deg,#3FE0C8,#29ADFF,#6C63FF,#FF6BC1)}
+.padwrap--foot{left:50%;transform:translateX(-50%);width:clamp(60px,15.5vw,94px);--pill:linear-gradient(100deg,#B8F06A,#3FD17A,#12A564)}
+.hwbox:not(.has-foot) .padwrap--foot{display:none}
+.hwbox.has-foot .padwrap--left{left:21%}
+.hwbox.has-foot .padwrap--right{left:79%}
+.padwrap--foot .handpill{padding:6px 11px;white-space:nowrap}
+
+/* foot target */
+.stomp{position:relative;width:100%;height:clamp(96px,25vw,152px);border:none;padding:0;background:none;cursor:pointer;
+  border-radius:44% 44% 38% 38% / 30% 30% 26% 26%;transition:transform .07s ease}
+.stomp__rim{position:absolute;inset:0;border-radius:inherit;background:linear-gradient(160deg,#B8F06A,#3FD17A 50%,#12A564);
+  filter:saturate(.62) brightness(.6);box-shadow:0 8px 0 rgba(0,0,0,.5), inset 0 -4px 8px rgba(0,0,0,.35);transition:filter .1s ease,box-shadow .1s ease}
+.stomp__print{position:absolute;left:17%;top:11%;width:66%;height:78%;fill:#0E2E1B;opacity:.5;transition:fill .1s ease,opacity .1s ease}
+.stomp__ring{position:absolute;inset:0;border-radius:inherit;border:7px solid #3FD17A;opacity:0;pointer-events:none}
+.stomp.is-hit{transform:translateY(6px) scaleY(.94)}
+.stomp.is-hit .stomp__rim{filter:none;box-shadow:0 2px 0 rgba(0,0,0,.5), 0 0 46px #3FD17A}
+.stomp.is-hit .stomp__print{fill:#FFF3E4;opacity:1}
+.stomp.is-ping .stomp__ring{animation:ping .5s ease-out}
+.stomp:focus-visible{outline:5px solid var(--star);outline-offset:6px}
 
 /* ---------- pads ---------- */
 .pad{position:relative;width:100%;aspect-ratio:1;border:none;padding:0;background:none;cursor:pointer;border-radius:50%;transition:transform .07s ease}
@@ -200,16 +219,43 @@ body.sunny .pad--right{--facearc:linear-gradient(140deg,#FFF0BC,#FFE070,#FFCE45,
 input[type=range]{flex:1;min-width:180px;height:16px;-webkit-appearance:none;appearance:none;background:#2E4074;border-radius:99px;border:3px solid #3E52A0}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;border-radius:50%;background:var(--star);border:4px solid var(--ink);cursor:pointer}
 input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;background:var(--star);border:4px solid var(--ink);cursor:pointer}
-.grid{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
-.cell{min-width:62px;padding:12px 6px 9px;border-radius:16px;cursor:pointer;background:#2E4074;border:3px solid #3E52A0;color:var(--cream);font-family:var(--display);text-align:center;box-shadow:0 4px 0 #16204A}
-.cell:active{transform:translateY(3px);box-shadow:0 1px 0 #16204A}
-.cell b{display:block;font-size:22px;font-weight:700;line-height:1}
-.cell i{display:block;font-family:var(--util);font-style:normal;font-size:11px;color:#A9BCEF;margin-top:5px}
-.cell.v-L{background:linear-gradient(100deg,#FF3B3B,#FF9F1C,#FFD23F);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 var(--left-deep)}
-.cell.v-R{background:linear-gradient(100deg,#3FE0C8,#29ADFF,#B06BFF);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 var(--right-deep)}
-.cell.v-B{background:linear-gradient(100deg,#FF3B3B,#FFD23F 46%,#29ADFF 54%,#B06BFF);border-color:#fff;color:var(--ink);box-shadow:0 4px 0 #7A4A2A}
-.cell.v-L i,.cell.v-R i,.cell.v-B i{color:rgba(12,19,48,.65)}
-.cell:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+/* beat library */
+.sublabel--first{margin-top:0}
+.beats{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:10px}
+.beatcard{
+  text-align:left;padding:11px 12px 12px;border-radius:16px;cursor:pointer;
+  background:#2E4074;border:3px solid #3E52A0;color:var(--cream);font-family:var(--display);
+  box-shadow:0 4px 0 #16204A;transition:transform .06s ease,box-shadow .06s ease;
+}
+.beatcard:active{transform:translateY(3px);box-shadow:0 1px 0 #16204A}
+.beatcard b{display:block;font-size:17px;font-weight:600;line-height:1.15}
+.beatcard small{display:block;font-family:var(--util);font-size:11px;color:#A9BCEF;margin-top:3px}
+.beatcard.on{border-color:var(--star);background:#3A4C8A;box-shadow:0 4px 0 #B58A00}
+.beatcard.on b::after{content:" \2713";color:var(--star)}
+.beatcard:focus-visible{outline:3px solid var(--star);outline-offset:3px}
+.mini{display:grid;grid-template-columns:repeat(var(--n),1fr);gap:2px;margin-top:9px}
+.mini i{height:9px;border-radius:3px;background:#27366C}
+.mini i.s{background:#34467F}
+.mini i.r{background:#29ADFF}
+.mini i.l{background:#FF9F1C}
+.mini i.f{background:#3FD17A}
+.legend{display:flex;flex-wrap:wrap;gap:6px 18px;margin:14px 0 12px;font-family:var(--util);font-size:12px;color:#A9BCEF}
+.legend i,.kl i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:6px;vertical-align:-1px;flex:none}
+i.r{background:#29ADFF} i.l{background:#FF9F1C} i.f{background:#3FD17A}
+
+/* the three-row beat editor, laid out like the chart */
+.kitwrap{overflow-x:auto;margin-bottom:12px;padding-bottom:4px}
+.kit{display:grid;grid-template-columns:62px repeat(var(--n),minmax(26px,1fr));gap:4px;min-width:min-content}
+.kh{font-family:var(--util);font-size:11px;text-align:center;color:#8FA4E0;padding-bottom:2px}
+.kh.down{color:var(--cream);font-weight:700;font-size:13px}
+.kl{display:flex;align-items:center;font-size:14px;font-weight:600}
+.kc{height:36px;padding:0;border-radius:9px;cursor:pointer;background:#26356A;border:2px solid #3E52A0}
+.kc.s{background:#34467F}
+.kc.on{border-color:#fff}
+.kc.on.r{background:linear-gradient(135deg,#3FE0C8,#29ADFF,#B06BFF)}
+.kc.on.l{background:linear-gradient(135deg,#FF3B3B,#FF9F1C,#FFD23F)}
+.kc.on.f{background:linear-gradient(135deg,#B8F06A,#3FD17A,#12A564)}
+.kc:focus-visible{outline:3px solid var(--star);outline-offset:2px}
 .hint{margin:10px 0 0;font-family:var(--util);font-size:12px;color:#8FA4E0;line-height:1.5}
 .switches{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:8px}
 .sw{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;border-radius:14px;cursor:pointer;background:#2E4074;border:3px solid #3E52A0;color:var(--cream);font-family:var(--display);font-size:15px;font-weight:500;text-align:left}
@@ -232,7 +278,7 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
 .finish__card .transport{margin-top:0}
 
 @media (max-width:560px){
-  body{padding:8px 6px 30px}
+  body{padding-block:8px 30px}
   .device{border-radius:26px}
   .stage{padding:12px 8px 18px}
   .deck{padding:12px}
@@ -254,6 +300,24 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
   <!-- ==================== SETUP SCREEN ==================== -->
   <section id="setup">
     <div class="deck">
+
+      <div class="panel">
+        <h2>Pick a beat</h2>
+        <p class="sublabel sublabel--first">Stick warm-ups</p>
+        <div class="beats" id="warmups"></div>
+        <p class="sublabel">10 basic drum beats</p>
+        <div class="beats" id="library"></div>
+        <div class="legend">
+          <span><i class="r"></i>Hi-hat / ride → right stick</span>
+          <span><i class="l"></i>Snare → left stick</span>
+          <span><i class="f"></i>Bass drum → stomp foot</span>
+        </div>
+        <div class="row" id="footRow">
+          <button class="chip on" data-foot="1">Sticks + foot</button>
+          <button class="chip" data-foot="0">Sticks only</button>
+        </div>
+        <p class="hint">On a practice pad his foot stomps the floor for the bass drum. Start with sticks only, then add the foot once his hands feel easy.</p>
+      </div>
 
       <div class="panel">
         <h2>Speed</h2>
@@ -282,21 +346,22 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
           <button class="chip" data-beats="8" data-name="8">8</button>
         </div>
         <div class="row" style="margin-top:10px" id="subRow">
-          <button class="chip on" data-sub="1">♩ One hit per beat</button>
-          <button class="chip" data-sub="2">♪ Two hits per beat</button>
+          <button class="chip on" data-sub="1">♩ One per beat</button>
+          <button class="chip" data-sub="2">♪ Two per beat</button>
+          <button class="chip" data-sub="3">Three per beat (triplets)</button>
         </div>
       </div>
 
       <div class="panel">
-        <h2>Which stick hits</h2>
+        <h2>Build or change the beat</h2>
         <div class="row" id="leadRow">
           <button class="chip on" data-lead="R">Right stick leads</button>
           <button class="chip" data-lead="L">Left stick leads</button>
         </div>
         <p class="sublabel">Other stick joins in on beat:</p>
         <div class="row" id="joinRow"></div>
-        <p class="sublabel">Or build it beat by beat:</p>
-        <div class="grid" id="grid"></div>
+        <p class="sublabel">Every hit, laid out like his beat chart:</p>
+        <div class="kitwrap"><div class="kit" id="kit"></div></div>
         <div class="row">
           <button class="chip chip--wide" id="swapBtn">↔ Swap hands</button>
           <button class="chip chip--wide" data-preset="alt">R L R L</button>
@@ -306,7 +371,7 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
           <button class="chip chip--wide" data-preset="paradiddle">Paradiddle</button>
           <button class="chip chip--wide" data-preset="clear">Clear all</button>
         </div>
-        <p class="hint">Tap a beat to change it: right → left → both → rest.</p>
+        <p class="hint">Tap a square to add or remove a hit. Beats 1 and 3 are shaded, as on the chart.</p>
       </div>
 
       <div class="panel">
@@ -325,14 +390,19 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
         <h2>Sound &amp; scrolling</h2>
         <div class="switches">
           <button class="sw on" id="swClick">Metronome click <span class="knob"></span></button>
-          <button class="sw on" id="swTones">Different note per hand <span class="knob"></span></button>
           <button class="sw" id="swSpeak">Count out loud <span class="knob"></span></button>
           <button class="sw on" id="swCountIn">Count in first <span class="knob"></span></button>
           <button class="sw on" id="swCheer">Cheer him on <span class="knob"></span></button>
           <button class="sw on" id="swNumbers">Beat numbers on track <span class="knob"></span></button>
           <button class="sw" id="swSunny">Sunny yellow buddies <span class="knob"></span></button>
         </div>
-        <p class="sublabel">How far ahead he can see:</p>
+        <p class="sublabel">Hit sounds:</p>
+        <div class="row" id="soundRow">
+          <button class="chip on" data-snd="notes">Friendly notes</button>
+          <button class="chip" data-snd="kit">Drum kit</button>
+          <button class="chip" data-snd="off">Off</button>
+        </div>
+        <p class="sublabel">How far ahead he can see (fewer beats = bigger notes):</p>
         <div class="row" id="lookRow">
           <button class="chip" data-look="2">2 beats</button>
           <button class="chip on" data-look="4">4 beats</button>
@@ -398,6 +468,22 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
             <span class="sparks"><i class="spark"></i><i class="spark"></i><i class="spark"></i><i class="spark"></i></span>
           </button>
           <div class="handpill"><b>L</b> Left</div>
+        </div>
+
+        <div class="padwrap padwrap--foot" id="wrapF">
+          <button class="stomp" id="padF" aria-label="Foot pad">
+            <span class="stomp__rim"></span>
+            <svg class="stomp__print" viewBox="0 0 60 100" aria-hidden="true">
+              <path d="M31 34 C43 34 49 46 47 61 C45 77 41 95 29 95 C18 95 14 82 13 68 C12 50 18 34 31 34Z"/>
+              <circle cx="42" cy="21" r="7.5"/>
+              <circle cx="30" cy="15" r="5.6"/>
+              <circle cx="20.5" cy="16.5" r="4.8"/>
+              <circle cx="13" cy="21.5" r="4.1"/>
+              <circle cx="8" cy="29" r="3.5"/>
+            </svg>
+            <span class="stomp__ring"></span>
+          </button>
+          <div class="handpill">Stomp</div>
         </div>
 
         <div class="padwrap padwrap--right" id="wrapR">
@@ -475,17 +561,45 @@ input[type=range]::-moz-range-thumb{width:34px;height:34px;border-radius:50%;bac
 const $ = s => document.querySelector(s);
 const $$ = s => Array.from(document.querySelectorAll(s));
 
+/* A cell lists the limbs that play on it: "R" right stick, "L" left stick, "F" foot.
+   "RLF" is everything together, "" is a rest. */
+const WARMUPS = [
+  { id:"w1", name:"R R R + both on 4", tempo:100, sub:1, cells:["R","R","R","RL"] },
+  { id:"w2", name:"Both on 2 & 4",     tempo:100, sub:1, cells:["R","RL","R","RL"] },
+  { id:"w3", name:"R L R L",           tempo:100, sub:1, cells:["R","L","R","L"] }
+];
+/* "10 Basic Drum Beats", copied square by square from the chart's grids.
+   Top row (hi-hat or ride) -> right stick, middle row (snare) -> left stick,
+   bottom row (bass drum, or hi-hat pedal in Slow Swing) -> foot. */
+const CHART = [
+  { id:"wwry",    name:"We Will Rock You",  tempo:80, sub:2, cells:["F","F","L","","F","F","L",""] },
+  { id:"back",    name:"Back Beat",         tempo:80, sub:2, cells:["RF","R","RL","R","RF","R","RL","R"] },
+  { id:"rock",    name:"Rock Beat",         tempo:80, sub:2, cells:["RF","R","RL","R","RF","RF","RL","R"] },
+  { id:"pop",     name:"Pop Beat",          tempo:85, sub:2, cells:["RF","R","RL","R","R","RF","RL","R"] },
+  { id:"four",    name:"Four on the Floor", tempo:90, sub:2, cells:["RF","R","RLF","R","RF","R","RLF","R"] },
+  { id:"drop",    name:"One Drop",          tempo:70, sub:2, cells:["R","R","RLF","R","R","R","RLF","R"] },
+  { id:"motown",  name:"Motown",            tempo:90, sub:2, cells:["RLF","R","RL","R","RL","RF","RL","RF"] },
+  { id:"blues",   name:"Slow Blues",        tempo:55, sub:3, cells:["RF","R","R","RL","R","R","RF","R","R","RL","R","R"] },
+  { id:"shuffle", name:"Shuffle",           tempo:70, sub:3, cells:["RF","","R","RL","","R","RF","","R","RL","","R"] },
+  { id:"swing",   name:"Slow Swing",        tempo:60, sub:3, cells:["R","","","RF","","R","R","","","RF","","R"] }
+];
+const ALL_BEATS = WARMUPS.concat(CHART);
+const LIMBS = ["R","L","F"];
+const norm = s => LIMBS.filter(k => s.includes(k)).join("");
+const has = (c, k) => c.includes(k);
+
 const state = {
   tempo:100, beats:4, sigName:"4/4", sub:1,
-  pattern:["R","R","R","B"],
+  pattern:WARMUPS[0].cells.slice(), beatId:"w1", beatName:WARMUPS[0].name,
+  foot:true, sound:"notes",
   minutes:3, lookBeats:4, sunny:false,
-  click:true, tones:true, speak:false, countIn:true, cheer:true, numbers:true
+  click:true, speak:false, countIn:true, cheer:true, numbers:true
 };
+const isChartBeat = () => CHART.some(b => b.id === state.beatId);
 
-const NEXT = { R:"L", L:"B", B:"x", x:"R" };
-const FACE = { R:"R", L:"L", B:"LR", x:"–" };
 const WARM = ["#FF3B3B","#FF9F1C","#FFD23F"];
 const COOL = ["#3FE0C8","#29ADFF","#B06BFF"];
+const FOOT = ["#B8F06A","#3FD17A","#12A564"];
 
 const CHEERS = ["Nice and steady!","You've got it!","Great counting!","Keep those sticks moving!",
   "Sounding good!","Lovely rhythm!","Strong sticks!","You're on the beat!"];
@@ -493,27 +607,56 @@ const MILESTONE = {1:"One star! Keep going!",2:"Two stars — you're flying!",
   3:"Three stars! Over halfway!",4:"Four stars — nearly there!",5:"Five stars! Amazing!"};
 
 /* ---------------- audio ---------------- */
-let ctx = null;
+let ctx = null, noiseBuf = null;
 function audio(){
   if(!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
   if(ctx.state === "suspended") ctx.resume();
+  if(!noiseBuf){
+    noiseBuf = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate);
+    const d = noiseBuf.getChannelData(0);
+    for(let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
+  }
   return ctx;
 }
 function blip(time, freq, vol, dur, type){
-  const o = ctx.createOscillator(), g = ctx.createGain();
+  const o = ctx.createOscillator(), gn = ctx.createGain();
   o.type = type || "square";
   o.frequency.setValueAtTime(freq, time);
-  g.gain.setValueAtTime(0.0001, time);
-  g.gain.exponentialRampToValueAtTime(vol, time + 0.004);
-  g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
-  o.connect(g); g.connect(ctx.destination);
+  gn.gain.setValueAtTime(0.0001, time);
+  gn.gain.exponentialRampToValueAtTime(vol, time + 0.004);
+  gn.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  o.connect(gn); gn.connect(ctx.destination);
   o.start(time); o.stop(time + dur + 0.02);
 }
+function noise(time, type, freq, q, vol, dur){
+  const src = ctx.createBufferSource(), f = ctx.createBiquadFilter(), gn = ctx.createGain();
+  src.buffer = noiseBuf;
+  f.type = type; f.frequency.value = freq; if(q) f.Q.value = q;
+  gn.gain.setValueAtTime(0.0001, time);
+  gn.gain.exponentialRampToValueAtTime(vol, time + 0.002);
+  gn.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+  src.connect(f); f.connect(gn); gn.connect(ctx.destination);
+  src.start(time); src.stop(time + dur + 0.02);
+}
+function kick(time){
+  const o = ctx.createOscillator(), gn = ctx.createGain();
+  o.type = "sine";
+  o.frequency.setValueAtTime(150, time);
+  o.frequency.exponentialRampToValueAtTime(45, time + 0.13);
+  gn.gain.setValueAtTime(0.0001, time);
+  gn.gain.exponentialRampToValueAtTime(0.9, time + 0.004);
+  gn.gain.exponentialRampToValueAtTime(0.0001, time + 0.34);
+  o.connect(gn); gn.connect(ctx.destination);
+  o.start(time); o.stop(time + 0.36);
+}
 function clickSound(t, accent){ if(state.click) blip(t, accent?1500:1000, accent?0.30:0.15, 0.05, "square"); }
-function handSound(t, hand){
-  if(!state.tones) return;
-  if(hand === "L" || hand === "B") blip(t, 196, 0.32, 0.16, "triangle");
-  if(hand === "R" || hand === "B") blip(t, 330, 0.32, 0.16, "triangle");
+function hitSound(t, v){
+  if(state.sound === "off") return;
+  const kit = state.sound === "kit";
+  if(has(v,"R")){ if(kit) noise(t, "highpass", 7000, 0, 0.22, 0.05); else blip(t, 330, 0.32, 0.16, "triangle"); }
+  if(has(v,"L")){ if(kit){ noise(t, "bandpass", 1800, 0.8, 0.5, 0.16); blip(t, 185, 0.22, 0.09, "triangle"); }
+                  else blip(t, 196, 0.32, 0.16, "triangle"); }
+  if(has(v,"F")) kick(t);
 }
 function say(n){
   if(!state.speak || !("speechSynthesis" in window)) return;
@@ -533,11 +676,14 @@ let running = false, paused = false, lookaheadId = null, rafId = null;
 let playStart = 0, elapsedBase = 0;
 let hits = 0, starsWon = 0, cheerIdx = 0, lastCheerAt = 0;
 let bursts = [];
+let footLive = false;          // whether this run shows the foot lane
 
-const cells    = () => state.beats * state.sub;
+const cells    = () => state.pattern.length;
 const cellDur  = () => 60 / state.tempo / state.sub;
 const target   = () => state.minutes * 60;
 const approach = () => state.lookBeats * 60 / state.tempo;
+const footWanted = () => state.foot && state.pattern.some(c => has(c,"F"));
+const playCell = i => { const c = state.pattern[i] || ""; return footLive ? c : c.replace("F",""); };
 
 function genUntil(limit){
   let guard = 0;
@@ -549,7 +695,7 @@ function genUntil(limit){
       if(genCi >= state.beats){ genPhase = "play"; genCell = 0; playStart = genTime; }
     } else {
       const i = genCell % cells();
-      events.push({ t:genTime, kind:"cell", i, v:state.pattern[i] || "x" });
+      events.push({ t:genTime, kind:"cell", i, v:playCell(i) });
       genTime += cellDur();
       genCell = (i + 1) % cells();
     }
@@ -562,14 +708,15 @@ function scheduler(){
     if(ev.sched || ev.t >= now + 0.12) continue;
     ev.sched = true;
     if(ev.kind === "ci") clickSound(ev.t, ev.n === 1);
-    else { clickSound(ev.t, ev.i === 0); if(ev.v !== "x") handSound(ev.t, ev.v); }
+    else { clickSound(ev.t, ev.i === 0); if(ev.v) hitSound(ev.t, ev.v); }
   }
   while(events.length && events[0].t < now - 1.2) events.shift();
 }
 
 /* ---------------- the scrolling track ---------------- */
+/* lanes: 0 = left stick, 1 = right stick, 2 = foot (middle, only when used) */
 const cv = $("#hw"), g = cv.getContext("2d");
-let W = 0, H = 0, laneX = [0,0], hitY = 0, noteR = 24, padHalf = 40;
+let W = 0, H = 0, laneX = [0,0,0], hitY = 0, noteR = 24, padHalf = 40, footHalf = 30, gemR = 24;
 
 function sizeTrack(){
   const box = $("#hwbox"), dpr = Math.min(2, window.devicePixelRatio || 1);
@@ -577,11 +724,15 @@ function sizeTrack(){
   cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
   cv.style.width = W + "px"; cv.style.height = H + "px";
   g.setTransform(dpr, 0, 0, dpr, 0, 0);
-  const wl = $("#wrapL"), pl = $("#padL"), wr = $("#wrapR"), pr = $("#padR");
-  laneX = [ wl.offsetLeft + pl.offsetLeft + pl.offsetWidth/2,
-            wr.offsetLeft + pr.offsetLeft + pr.offsetWidth/2 ];
+  /* measure the pads as drawn (the wrappers are centred with a transform,
+     which offsetLeft ignores) so notes land dead centre */
+  const o = box.getBoundingClientRect();
+  const cx = el => { const b = el.getBoundingClientRect(); return b.left + b.width/2 - o.left - box.clientLeft; };
+  const pl = $("#padL"), pr = $("#padR"), pf = $("#padF");
+  laneX = [ cx(pl), cx(pr), footLive ? cx(pf) : W/2 ];
   padHalf = pl.offsetWidth / 2;
-  hitY = wl.offsetTop + pl.offsetTop;          // notes land on the top of the pad
+  footHalf = pf.offsetWidth / 2 || padHalf * 0.6;
+  hitY = pl.getBoundingClientRect().top - o.top - box.clientTop;   // notes land on the top of the pad
   noteR = Math.max(16, Math.min(40, pl.offsetWidth * 0.30));
 }
 window.addEventListener("resize", () => { if(!$("#play").hidden) sizeTrack(); });
@@ -590,39 +741,53 @@ const ease = p => p * (0.58 + 0.42 * p);        // gentle acceleration toward th
 const scaleAt = p => 0.34 + 0.66 * p;
 const yAt = p => 8 + (hitY - 8) * ease(p);
 const xAt = (lane, p) => W/2 + (laneX[lane] - W/2) * scaleAt(p);
+const halfOf = lane => lane === 2 ? footHalf : padHalf;
 
+function rrect(x, y, w, h, r){
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);         g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
 function gem(lane, p, alpha){
-  const s = scaleAt(p), x = xAt(lane, p), y = yAt(p), r = noteR * s;
-  const cols = lane ? COOL : WARM;
+  const s = scaleAt(p), x = xAt(lane, p), y = yAt(p), r = gemR * s;
+  const cols = lane === 2 ? FOOT : (lane ? COOL : WARM);
   const grd = g.createLinearGradient(x - r, y - r, x + r, y + r);
   grd.addColorStop(0, cols[0]); grd.addColorStop(0.5, cols[1]); grd.addColorStop(1, cols[2]);
   g.globalAlpha = alpha;
-  g.beginPath(); g.arc(x, y, r, 0, 6.2832);
+  if(lane === 2) rrect(x - r*0.78, y - r, r*1.56, r*2, r*0.72);   // tall capsule for the foot
+  else { g.beginPath(); g.arc(x, y, r, 0, 6.2832); }
   g.fillStyle = grd; g.fill();
   g.lineWidth = Math.max(2, 3.4 * s); g.strokeStyle = "rgba(255,243,228,.92)"; g.stroke();
-  g.beginPath(); g.arc(x - r*0.3, y - r*0.34, r*0.24, 0, 6.2832);
+  g.beginPath(); g.arc(x - r*0.3, y - r*0.38, r*0.22, 0, 6.2832);
   g.fillStyle = "rgba(255,255,255,.55)"; g.fill();
   g.globalAlpha = 1;
 }
+
+const LANE_RGB = ["255,159,28", "41,173,255", "63,209,122"];
 
 function drawTrack(now){
   if(!W) return;
   g.clearRect(0, 0, W, H);
   const ap = approach();
+  const lanes = footLive ? [0,2,1] : [0,1];
+  /* distance between back-to-back notes where they land; keep gems smaller than that */
+  const gap = (hitY - 8) * 1.42 * cellDur() / ap;
+  gemR = Math.max(12, Math.min(noteR, gap * 0.46));
 
   /* lane floors, narrow at the top, wide at the pads */
-  for(let L = 0; L < 2; L++){
+  for(const L of lanes){
+    const hw = halfOf(L) * 0.92;
     g.beginPath();
-    for(let k = 0; k <= 12; k++){ const p = k/12, s = scaleAt(p);
-      g.lineTo(xAt(L,p) - padHalf*0.92*s, yAt(p)); }
-    for(let k = 12; k >= 0; k--){ const p = k/12, s = scaleAt(p);
-      g.lineTo(xAt(L,p) + padHalf*0.92*s, yAt(p)); }
+    for(let k = 0; k <= 12; k++){ const p = k/12; g.lineTo(xAt(L,p) - hw*scaleAt(p), yAt(p)); }
+    for(let k = 12; k >= 0; k--){ const p = k/12; g.lineTo(xAt(L,p) + hw*scaleAt(p), yAt(p)); }
     g.closePath();
     const lg = g.createLinearGradient(0, 0, 0, hitY);
-    lg.addColorStop(0, L ? "rgba(41,173,255,.03)" : "rgba(255,159,28,.03)");
-    lg.addColorStop(1, L ? "rgba(41,173,255,.16)" : "rgba(255,159,28,.16)");
+    lg.addColorStop(0, "rgba(" + LANE_RGB[L] + ",.03)");
+    lg.addColorStop(1, "rgba(" + LANE_RGB[L] + ",.16)");
     g.fillStyle = lg; g.fill();
-    g.strokeStyle = L ? "rgba(41,173,255,.28)" : "rgba(255,159,28,.28)";
+    g.strokeStyle = "rgba(" + LANE_RGB[L] + ",.28)";
     g.lineWidth = 2; g.stroke();
   }
 
@@ -655,19 +820,21 @@ function drawTrack(now){
 
   /* falling notes */
   for(const ev of events){
-    if(ev.kind !== "cell" || ev.v === "x") continue;
+    if(ev.kind !== "cell" || !ev.v) continue;
     const p = 1 - (ev.t - now) / ap;
     if(p < 0 || p > 1) continue;
-    const lanes = ev.v === "B" ? [0,1] : (ev.v === "L" ? [0] : [1]);
-    if(ev.v === "B"){                       /* join both hands with a bar */
+    const a = Math.min(1, 0.25 + p * 2.2);
+    if(has(ev.v,"L") && has(ev.v,"R")){          /* join both hands with a bar */
       const s = scaleAt(p), y = yAt(p);
       const bg = g.createLinearGradient(xAt(0,p), y, xAt(1,p), y);
       bg.addColorStop(0, WARM[1]); bg.addColorStop(1, COOL[1]);
-      g.globalAlpha = 0.7; g.strokeStyle = bg; g.lineWidth = Math.max(3, 9*s);
+      g.globalAlpha = 0.6 * a; g.strokeStyle = bg; g.lineWidth = Math.max(3, 8*s);
       g.beginPath(); g.moveTo(xAt(0,p), y); g.lineTo(xAt(1,p), y); g.stroke();
       g.globalAlpha = 1;
     }
-    lanes.forEach(L => gem(L, p, Math.min(1, 0.25 + p * 2.2)));
+    if(has(ev.v,"F") && footLive) gem(2, p, a);
+    if(has(ev.v,"L")) gem(0, p, a);
+    if(has(ev.v,"R")) gem(1, p, a);
   }
 
   /* splash where a note landed */
@@ -675,9 +842,9 @@ function drawTrack(now){
   for(const b of bursts){
     const k = (now - b.t) / 0.42;
     g.globalAlpha = (1 - k) * 0.8;
-    g.strokeStyle = b.lane ? COOL[1] : WARM[1];
+    g.strokeStyle = b.lane === 2 ? FOOT[1] : (b.lane ? COOL[1] : WARM[1]);
     g.lineWidth = 5 * (1 - k) + 1;
-    g.beginPath(); g.arc(laneX[b.lane], hitY, noteR + k * noteR * 2.4, 0, 6.2832); g.stroke();
+    g.beginPath(); g.arc(laneX[b.lane], hitY, gemR + k * noteR * 2.4, 0, 6.2832); g.stroke();
     g.globalAlpha = 1;
   }
 }
@@ -720,9 +887,10 @@ function setCheer(msg){
   el.classList.remove("pop"); void el.offsetWidth; el.classList.add("pop");
 }
 function fireCell(i, v, now){
-  if(v === "L" || v === "B"){ hit($("#padL"), $("#wrapL")); bursts.push({lane:0, t:now}); }
-  if(v === "R" || v === "B"){ hit($("#padR"), $("#wrapR")); bursts.push({lane:1, t:now}); }
-  if(v === "B") hits += 2; else if(v !== "x") hits += 1;
+  if(has(v,"L")){ hit($("#padL"), $("#wrapL")); bursts.push({lane:0, t:now}); }
+  if(has(v,"R")){ hit($("#padR"), $("#wrapR")); bursts.push({lane:1, t:now}); }
+  if(has(v,"F")){ hit($("#padF"), $("#wrapF")); bursts.push({lane:2, t:now}); }
+  hits += v.length;
   $("#hits").textContent = hits + (hits === 1 ? " hit" : " hits");
   if(state.speak && i % state.sub === 0) say(i / state.sub + 1);
 }
@@ -744,8 +912,11 @@ setInterval(() => {
 
 /* ---------------- screens ---------------- */
 function showPlay(){
+  footLive = footWanted();
+  $("#hwbox").classList.toggle("has-foot", footLive);
   $("#setup").hidden = true; $("#play").hidden = false;
-  $("#badgeInfo").textContent = state.tempo + " bpm · " + state.sigName;
+  $("#badgeInfo").textContent = isChartBeat() ? state.beatName + " · " + state.tempo + " bpm"
+                                               : state.tempo + " bpm · " + state.sigName;
   sizeTrack();
 }
 function showSetup(){
@@ -769,7 +940,7 @@ function begin(fromSeconds){
   lookaheadId = setInterval(scheduler, 25);
   scheduler();
   rafId = requestAnimationFrame(frame);
-  setCheer(fromSeconds ? "Back at it!" : "Here we go!");
+  setCheer(fromSeconds ? "Back at it!" : (isChartBeat() ? state.beatName + " — here we go!" : "Here we go!"));
   $("#stopBtn").hidden = false; $("#resumeBtn").hidden = true; $("#restartBtn").hidden = true;
   $("#clockLabel").textContent = "Time left";
   keepAwake();
@@ -798,15 +969,16 @@ function stopEngine(){
   events = []; bursts = [];
   if(W) g.clearRect(0, 0, W, H);
   $("#countin").classList.remove("is-on");
-  ["L","R"].forEach(h => { $("#pad"+h).classList.remove("is-hit"); $("#wrap"+h).classList.remove("lit"); });
+  ["L","R","F"].forEach(h => { $("#pad"+h).classList.remove("is-hit"); $("#wrap"+h).classList.remove("lit"); });
   releaseAwake();
 }
 function finish(){
   stopEngine();
   updateClock(0); updateStars(1);
   const m = state.minutes;
-  $("#finishText").textContent = m + (m === 1 ? " minute" : " minutes") + " at " + state.tempo +
-    " bpm, in " + state.sigName + ". That's " + hits + " stick hits without stopping.";
+  $("#finishText").textContent = m + (m === 1 ? " minute" : " minutes") + " of " +
+    (isChartBeat() ? state.beatName : "drumming") + " at " + state.tempo +
+    " bpm. That's " + hits + " hits without stopping.";
   $("#finish").classList.add("is-on");
   $("#againBtn").focus();
   if(ctx) chime(ctx.currentTime);
@@ -828,29 +1000,80 @@ function updateStars(frac){ $$("#stars svg").forEach((s,i) => s.classList.toggle
 $("#stars").innerHTML = Array.from({length:5}, () =>
   '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2l2.9 6.3 6.9.8-5.1 4.7 1.4 6.8L12 17.3 5.9 20.6l1.4-6.8L2.2 9.1l6.9-.8z"/></svg>').join("");
 
+/* ---------------- beat library ---------------- */
+const ROWS = { R:["r","Right"], L:["l","Left"], F:["f","Foot"] };
+const shadeOf = (i, sub) => Math.floor(i / sub) % 2 === 0 ? " s" : "";   // beats 1 & 3 shaded, like the chart
+
+function miniGrid(cellsArr, sub){
+  let h = '<span class="mini" style="--n:' + cellsArr.length + '">';
+  LIMBS.forEach(k => cellsArr.forEach((c, i) => {
+    h += '<i class="' + (has(c,k) ? ROWS[k][0] : "") + shadeOf(i, sub) + '"></i>';
+  }));
+  return h + "</span>";
+}
+function beatCard(b){
+  const feel = b.sub === 3 ? "triplet feel" : (b.sub === 2 ? "eighth notes" : "one per beat");
+  return '<button class="beatcard" data-beat="' + b.id + '"><b>' + b.name + '</b><small>' +
+    b.tempo + " bpm · " + feel + "</small>" + miniGrid(b.cells, b.sub) + "</button>";
+}
+function loadBeat(id){
+  const b = ALL_BEATS.find(x => x.id === id); if(!b) return;
+  state.sub = b.sub; state.beats = b.cells.length / b.sub; state.sigName = "4/4";
+  state.pattern = b.cells.slice(); state.beatId = b.id; state.beatName = b.name;
+  state.lookBeats = b.sub === 1 ? 4 : 2;
+  $$("#lookRow .chip").forEach(x => x.classList.toggle("on", +x.dataset.look === state.lookBeats));
+  setTempo(b.tempo); syncChips(); redraw();
+}
+
 /* ---------------- setup controls ---------------- */
 function labelFor(i){
-  const beat = Math.floor(i / state.sub) + 1;
-  return (i % state.sub === 0) ? String(beat) : "&";
+  const pos = i % state.sub;
+  return pos === 0 ? String(Math.floor(i / state.sub) + 1) : (pos === 1 ? "&" : "a");
 }
 function leadHand(){
   let r = 0, l = 0;
-  state.pattern.forEach(v => { if(v === "R") r++; if(v === "L") l++; });
+  state.pattern.forEach(c => {
+    if(has(c,"R") && !has(c,"L")) r++;
+    if(has(c,"L") && !has(c,"R")) l++;
+  });
   return l > r ? "L" : "R";
 }
+function syncChips(){
+  $$("#sigRow .chip").forEach(x => x.classList.toggle("on", +x.dataset.beats === state.beats));
+  $$("#subRow .chip").forEach(x => x.classList.toggle("on", +x.dataset.sub === state.sub));
+}
 function redraw(){
-  $("#grid").innerHTML = state.pattern.map((v,i) =>
-    '<button class="cell v-' + v + '" data-i="' + i + '"><b>' + FACE[v] + "</b><i>" + labelFor(i) + "</i></button>").join("");
-  $("#joinRow").innerHTML = Array.from({length:state.beats}, (_,k) =>
-    '<button class="chip chip--beat' + (state.pattern[k*state.sub] === "B" ? " on" : "") +
-    '" data-join="' + k + '">' + (k+1) + "</button>").join("");
+  const n = state.pattern.length;
+  let h = "<span></span>";
+  for(let i = 0; i < n; i++) h += '<span class="kh' + (i % state.sub === 0 ? " down" : "") + '">' + labelFor(i) + "</span>";
+  LIMBS.forEach(k => {
+    h += '<span class="kl"><i class="' + ROWS[k][0] + '"></i>' + ROWS[k][1] + "</span>";
+    state.pattern.forEach((c, i) => {
+      const on = has(c,k);
+      h += '<button class="kc ' + ROWS[k][0] + (on ? " on" : "") + shadeOf(i, state.sub) +
+           '" data-i="' + i + '" data-k="' + k + '" aria-pressed="' + on + '" aria-label="' +
+           ROWS[k][1] + ", count " + labelFor(i) + '"></button>';
+    });
+  });
+  const kit = $("#kit");
+  kit.style.setProperty("--n", n);
+  kit.innerHTML = h;
+  $("#joinRow").innerHTML = Array.from({length:state.beats}, (_,k) => {
+    const c = state.pattern[k * state.sub] || "";
+    return '<button class="chip chip--beat' + (has(c,"R") && has(c,"L") ? " on" : "") +
+      '" data-join="' + k + '">' + (k+1) + "</button>";
+  }).join("");
   const lead = leadHand();
   $$("#leadRow .chip").forEach(c => c.classList.toggle("on", c.dataset.lead === lead));
+  $$(".beatcard").forEach(c => c.classList.toggle("on", c.dataset.beat === state.beatId));
+  $$("#footRow .chip").forEach(c => c.classList.toggle("on", (c.dataset.foot === "1") === state.foot));
 }
+/* any hand edit means it's no longer the library beat as written */
+function edited(){ state.beatId = null; state.beatName = null; redraw(); }
 function resize(){
-  const want = cells(), old = state.pattern.slice(), next = [];
-  for(let i = 0; i < want; i++) next.push(old[i] || (i % 2 ? "L" : "R"));
-  state.pattern = next; redraw();
+  const want = state.beats * state.sub, old = state.pattern.slice(), next = [];
+  for(let i = 0; i < want; i++) next.push(old[i] !== undefined ? old[i] : (i % 2 ? "L" : "R"));
+  state.pattern = next; edited();
 }
 function setTempo(v){
   state.tempo = Math.min(180, Math.max(40, Math.round(v)));
@@ -863,55 +1086,70 @@ $("#tempoDown").onclick = () => setTempo(state.tempo - 5);
 $("#tempoRange").oninput = e => setTempo(+e.target.value);
 $$("#tempoPresets .chip").forEach(c => c.onclick = () => setTempo(+c.dataset.t));
 
+$("#warmups").innerHTML = WARMUPS.map(beatCard).join("");
+$("#library").innerHTML = CHART.map(beatCard).join("");
+$$(".beats").forEach(el => el.onclick = e => {
+  const c = e.target.closest(".beatcard"); if(c) loadBeat(c.dataset.beat);
+});
+$$("#footRow .chip").forEach(c => c.onclick = () => { state.foot = c.dataset.foot === "1"; redraw(); });
+
 $$("#sigRow .chip").forEach(c => c.onclick = () => {
-  $$("#sigRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
-  state.beats = +c.dataset.beats; state.sigName = c.dataset.name; resize();
+  state.beats = +c.dataset.beats; state.sigName = c.dataset.name; syncChips(); resize();
 });
 $$("#subRow .chip").forEach(c => c.onclick = () => {
-  $$("#subRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
-  state.sub = +c.dataset.sub; resize();
+  state.sub = +c.dataset.sub; syncChips(); resize();
 });
 $$("#lookRow .chip").forEach(c => c.onclick = () => {
   $$("#lookRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
   state.lookBeats = +c.dataset.look;
 });
-$("#grid").onclick = e => {
-  const cell = e.target.closest(".cell"); if(!cell) return;
-  state.pattern[+cell.dataset.i] = NEXT[state.pattern[+cell.dataset.i]]; redraw();
+$$("#soundRow .chip").forEach(c => c.onclick = () => {
+  $$("#soundRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
+  state.sound = c.dataset.snd;
+});
+$("#kit").onclick = e => {
+  const b = e.target.closest(".kc"); if(!b) return;
+  const i = +b.dataset.i, k = b.dataset.k, c = state.pattern[i];
+  state.pattern[i] = has(c,k) ? c.replace(k, "") : norm(c + k);
+  edited();
 };
 $("#joinRow").onclick = e => {
   const chip = e.target.closest("[data-join]"); if(!chip) return;
-  const i = +chip.dataset.join * state.sub;
-  state.pattern[i] = state.pattern[i] === "B" ? leadHand() : "B"; redraw();
+  const i = +chip.dataset.join * state.sub, c = state.pattern[i] || "";
+  if(has(c,"R") && has(c,"L")) state.pattern[i] = c.replace(leadHand() === "R" ? "L" : "R", "");
+  else state.pattern[i] = norm(c + "RL");
+  edited();
 };
 $$("#leadRow .chip").forEach(c => c.onclick = () => {
   const lead = c.dataset.lead;
-  state.pattern = state.pattern.map(v => (v === "B" || v === "x") ? v : lead); redraw();
+  state.pattern = state.pattern.map(v =>
+    has(v,"R") !== has(v,"L") ? norm(v.replace("R","").replace("L","") + lead) : v);
+  edited();
 });
 $("#swapBtn").onclick = () => {
-  state.pattern = state.pattern.map(v => v === "L" ? "R" : v === "R" ? "L" : v); redraw();
+  state.pattern = state.pattern.map(v =>
+    norm((has(v,"L") ? "R" : "") + (has(v,"R") ? "L" : "") + (has(v,"F") ? "F" : "")));
+  edited();
 };
 $$("[data-preset]").forEach(b => b.onclick = () => {
-  const p = b.dataset.preset, n = cells();
+  const p = b.dataset.preset, n = state.beats * state.sub;
   if(p === "paradiddle"){
-    $$("#sigRow .chip").forEach(x => x.classList.toggle("on", x.dataset.beats === "4"));
-    $$("#subRow .chip").forEach(x => x.classList.toggle("on", x.dataset.sub === "2"));
-    state.beats = 4; state.sigName = "4/4"; state.sub = 2;
+    state.beats = 4; state.sigName = "4/4"; state.sub = 2; syncChips();
     state.pattern = ["R","L","R","R","L","R","L","L"];
   }
   if(p === "alt")   state.pattern = Array.from({length:n}, (_,i) => i % 2 ? "L" : "R");
   if(p === "right") state.pattern = Array(n).fill("R");
   if(p === "left")  state.pattern = Array(n).fill("L");
-  if(p === "both")  state.pattern = Array(n).fill("B");
-  if(p === "clear") state.pattern = Array(n).fill("x");
-  redraw();
+  if(p === "both")  state.pattern = Array(n).fill("RL");
+  if(p === "clear") state.pattern = Array(n).fill("");
+  edited();
 });
 $$("#minsRow .chip").forEach(c => c.onclick = () => {
   $$("#minsRow .chip").forEach(x => x.classList.remove("on")); c.classList.add("on");
   state.minutes = +c.dataset.min; updateClock(target());
 });
 function toggle(el, key){ el.onclick = () => { state[key] = !state[key]; el.classList.toggle("on", state[key]); }; }
-toggle($("#swClick"),"click"); toggle($("#swTones"),"tones"); toggle($("#swSpeak"),"speak");
+toggle($("#swClick"),"click"); toggle($("#swSpeak"),"speak");
 toggle($("#swCountIn"),"countIn"); toggle($("#swCheer"),"cheer"); toggle($("#swNumbers"),"numbers");
 $("#swSunny").onclick = () => {
   state.sunny = !state.sunny;
@@ -927,8 +1165,9 @@ $("#backBtn").onclick = showSetup;
 $("#againBtn").onclick = () => { $("#finish").classList.remove("is-on"); start(); };
 $("#finishBackBtn").onclick = showSetup;
 
-$("#padL").onclick = () => { audio(); blip(ctx.currentTime,196,0.32,0.16,"triangle"); hit($("#padL"),$("#wrapL")); };
-$("#padR").onclick = () => { audio(); blip(ctx.currentTime,330,0.32,0.16,"triangle"); hit($("#padR"),$("#wrapR")); };
+[["L","#wrapL"],["R","#wrapR"],["F","#wrapF"]].forEach(([k, wrap]) => {
+  $("#pad" + k).onclick = () => { audio(); hitSound(ctx.currentTime, k); hit($("#pad" + k), $(wrap)); };
+});
 
 document.addEventListener("keydown", e => {
   if(e.code === "Space" && !e.target.closest("button,input")){
@@ -942,7 +1181,7 @@ document.addEventListener("keydown", e => {
 document.addEventListener("visibilitychange", () => { if(document.hidden && running) pause(); });
 
 /* ---------------- boot ---------------- */
-redraw(); setTempo(100); updateClock(target()); updateStars(0);
+syncChips(); redraw(); setTempo(state.tempo); updateClock(target()); updateStars(0);
 </script>
 </body>
 </html>
